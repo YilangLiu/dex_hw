@@ -52,7 +52,7 @@ conda activate vega_demo
 
 ```bash
 # Install the projects including torch etc
-https://github.com/YilangLiu/dex_hw.git
+git clone https://github.com/YilangLiu/dex_hw.git
 cd dex_hw
 pip install -e .
 ```
