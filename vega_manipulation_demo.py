@@ -180,7 +180,7 @@ class VegaManipulationDemo:
     
     def place_object_randomly(self):
         """Place the target object at a random position."""
-        random_x = torch.rand(1, device=self.device) * 0.3 + 0.3  # 0.4 ~ 0.7
+        random_x = torch.rand(1, device=self.device) * 0.3 + 0.3  # 0.3 ~ 0.6
         random_y = torch.rand(1, device=self.device) * 0.1 - 0.3   # -0.3 ~ -0.2
         random_z = torch.rand(1, device=self.device) * 0.3 + 0.1   # 0.1 ~ 0.4
         
