@@ -5,10 +5,10 @@ A demonstration of robotic manipulation using the Vega humanoid robot in the Gen
 ## Demo Videos
 
 ### Basic Manipulation Demo
-![Basic Demo](video.mp4)
+![Basic Demo](video_debug.gif)
 
 ### Debug Visualization Demo  
-![Debug Demo](video_no_debug.mp4)
+![Debug Demo](video_no_debug.gif)
 
 *Note: The videos show the robot reaching for and grasping a red cube target. The debug version includes path visualization to show the planned motion trajectory.*
 
