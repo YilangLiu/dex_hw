@@ -70,6 +70,9 @@ cd ..
 git clone https://github.com/dexmate-ai/dexmate-urdf.git
 cd dexmate-urdf
 pip install dexmate_urdf
+
+# Install RSL Library 
+pip install rsl-rl-lib==2.2.4
 ```
 
 ## Usage
@@ -91,6 +94,12 @@ python vega_manipulation_demo.py --record
 
 # Combine multiple options
 python vega_manipulation_demo.py --vis --debug --record
+
+# Train RL agent 
+python python3 train_vega.py
+
+# Evaluate RL agent 
+python python3 eval_vega.py
 ```
 
 ### Command Line Options
