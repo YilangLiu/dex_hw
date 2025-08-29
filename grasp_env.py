@@ -162,7 +162,7 @@ class GraspEnv:
                     dtype=gs.tc_float,
                 ).repeat(num_reset, 1)
         
-        table_pos = torch.stack([random_x, random_y, random_z - self.env_cfg["box_size"][0]/2], dim=-1)
+        table_pos = torch.stack([random_x, random_y, random_z - self.env_cfg["box_size"][0]/2 - 0.02], dim=-1)
         self.table.set_pos(table_pos, envs_idx=envs_idx)
         self.table.set_quat(table_quat, envs_idx=envs_idx)
 
@@ -310,30 +310,23 @@ class GraspEnv:
         return keypoint_offsets.unsqueeze(0).repeat(batch_size, 1, 1)
 
     def grasp_and_lift_demo(self, render: bool = False):
-        total_steps = 200
-        goal_pose = self.robot.ee_link_pose.clone()
+        total_steps = 150
 
-        down_pose = goal_pose.clone()
-        down_pose[:, 1] -= 0.01
-        down_pose[:, 2] -= 0.06
-
-        lift_height = 0.1
-        lift_pose = goal_pose.clone()
-        lift_pose[:, 2] += lift_height
-
-        final_pose = goal_pose.clone()
-        final_pose[:, 0] = 0.3
-        final_pose[:, 1] = 0.0
-        final_pose[:, 2] = 0.4
-        reset_pose = torch.tensor([0.2, 0.0, 0.4, 0.0, 1.0, 0.0, 0.0], device=self.device).repeat(self.num_envs, 1)
+        lift_height = 0.03
         for i in range(total_steps):
             if render:
                 self.cam.render()
-            if i < total_steps / 4:
-                self.robot.go_to_goal(down_pose, open_gripper=True)
-            elif i < total_steps / 4 * 2:  # grasping
-                self.robot.go_to_goal(down_pose, open_gripper=False)
+            # if i < total_steps / 4:
+            #     self.robot.go_to_goal(down_pose, open_gripper=True)
+            if i < total_steps / 2:  # grasping
+                obj_pos = self.object.get_pos()
+                target_pose = self.robot.get_ee_pose_from_target_position(obj_pos)
+                target_pose[:, 1] -= 0.01
+                target_pose[:, 3:] = torch.tensor([0.9659258, -0.258819, 0, 0], device=self.device).repeat(self.num_envs, 1)
+                self.robot.go_to_goal(target_pose, open_gripper=False)
             else:  # lifting
+                lift_pose = self.robot.ee_link_pose.clone()
+                lift_pose[:, 2] += lift_height
                 self.robot.go_to_goal(lift_pose, open_gripper=False)
             self.scene.step()
 
@@ -488,6 +481,11 @@ class Vega:
         q_pos[:, self.left_arm_dofs_idx] = self.left_arm_default_dof
         q_pos[:, self.left_hand_dofs_idx] = self.left_hand_default_dof
         self._robot_entity.control_dofs_position(position=q_pos)
+    
+    def get_ee_pose_from_target_position(self, target_position):
+        quat = self._ee_link.get_quat()
+        pos = target_position - transform_by_quat(self._ee_frame_offset, quat)
+        return torch.cat([pos, quat], dim=-1)
 
     @property
     def base_pos(self):
@@ -502,8 +500,9 @@ class Vega:
         ee_pos = pos + transform_by_quat(self._ee_frame_offset, quat)
         # ee_pos = pos + self._ee_frame_offset 
         return torch.cat([ee_pos, quat], dim=-1)
-    
+
     @property
     def ee_link_pose(self) -> torch.Tensor:
         pos, quat = self._ee_link.get_pos(), self._ee_link.get_quat()
         return torch.cat([pos, quat], dim=-1)
+    

@@ -43,7 +43,9 @@ def main():
     env_cfg["box_collision"] = True
     # set the box fixed
     env_cfg["box_fixed"] = False
-
+    # set box size
+    env_cfg["box_size"]=[0.04, 0.04, 0.04]
+    
     env = GraspEnv(
         num_envs=1,
         env_cfg=env_cfg,
@@ -61,8 +63,9 @@ def main():
 
     obs, _ = env.reset()
 
-    env_cfg["episode_length_s"] = 1.0
+    env_cfg["episode_length_s"] = 0.3 # 1.0
     max_sim_step = int(env_cfg["episode_length_s"] * env_cfg["max_visualize_FPS"])
+    
     with torch.no_grad():
         if args.record:
             env.cam.start_recording()
